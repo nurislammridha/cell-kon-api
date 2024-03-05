@@ -1,21 +1,21 @@
 const express = require("express");
 const router = express.Router();
-const Category = require("../models/Category");
+const Unit = require("../models/Unit");
 //@route POST api/admin
 //@desc Admin login
 //@access Public
 router.post("/", async (req, res) => {
-  const { categoryName, categoryNameBn, isActive } = req.body;
+  const { unitName } = req.body;
   try {
-    let catName = await Category.findOne({ categoryName });
-    //see if user exists
-    if (catName) {
-      return res.status(400).json({ message: "Category already exist" });
+    let uniName = await Unit.findOne({ unitName });
+    //see if unit exists
+    if (uniName) {
+      return res.status(400).json({ message: "Thus unit already exist" });
     }
-    category = new Category({ categoryName, categoryNameBn, isActive });
-    await category.save();
+    let unit = new Unit({ unitName });
+    await unit.save();
     res.status(200).json({
-      message: "Category inserted succesfully",
+      message: "Unit inserted succesfully",
       status: true,
     });
   } catch (err) {
@@ -23,10 +23,10 @@ router.post("/", async (req, res) => {
     res.status(500).send("Server error");
   }
 });
-//all Category
+//all Unit
 router.get("/", async (req, res) => {
   try {
-    await Category.find((err, data) => {
+    await Unit.find((err, data) => {
       if (err) {
         res.status(500).json({
           error: "There was a server side error!",
@@ -34,7 +34,7 @@ router.get("/", async (req, res) => {
       } else {
         res.status(200).json({
           result: data,
-          message: "Todo was inserted successfully!",
+          message: "All unit list!",
           status: true,
         });
       }
@@ -44,9 +44,9 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Category By ID//
+// unit By ID//
 router.get("/:id", async (req, res) => {
-  await Category.find({ _id: req.params.id }, (err, data) => {
+  await Unit.find({ _id: req.params.id }, (err, data) => {
     if (err) {
       res.status(500).json({
         error: "There was a server side error!",
@@ -55,16 +55,16 @@ router.get("/:id", async (req, res) => {
       let [obj] = data;
       res.status(200).json({
         result: obj,
-        message: "Todo was inserted successfully!",
+        message: "Unit list by id!",
         status: true,
       });
     }
   });
 });
 
-//Update Category
+//Update Unit
 router.put("/:id", async (req, res) => {
-  await Category.updateOne(
+  await Unit.updateOne(
     { _id: req.params.id },
     {
       $set: req.body,
@@ -76,7 +76,7 @@ router.put("/:id", async (req, res) => {
         });
       } else {
         res.status(200).json({
-          message: "Category were updated successfully!",
+          message: "Unit were updated successfully!",
           status: true,
         });
       }
@@ -84,16 +84,16 @@ router.put("/:id", async (req, res) => {
   );
 });
 
-//delete category
+//delete unit
 router.delete("/:id", async (req, res) => {
-  await Category.deleteOne({ _id: req.params.id }, (err) => {
+  await Unit.deleteOne({ _id: req.params.id }, (err) => {
     if (err) {
       res.status(500).json({
         error: "There was a server side error!",
       });
     } else {
       res.status(200).json({
-        message: "Category was deleted successfully!",
+        message: "Unit was deleted successfully!",
         status: true,
       });
     }

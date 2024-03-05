@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const SellerSchema = new mongoose.Schema({
+const UnitSchema = new mongoose.Schema({
   unitName: {
     type: String,
     require: true,
@@ -9,4 +9,4 @@ const SellerSchema = new mongoose.Schema({
     default: true,
   },
 });
-module.exports = Seller = mongoose.model("Seller", SellerSchema);
+module.exports = Unit = mongoose.model("Unit", UnitSchema);
