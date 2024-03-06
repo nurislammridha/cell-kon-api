@@ -4,6 +4,10 @@ const ColorSchema = new mongoose.Schema({
     type: String,
     require: true,
   },
+  colorHexCode: {
+    type: String,
+    require: true,
+  },
   isActive: {
     type: String,
     default: true,

@@ -1,21 +1,25 @@
 const express = require("express");
 const router = express.Router();
-const Category = require("../models/Category");
+const Color = require("../models/Color");
 //@route POST api/admin
 //@desc Admin login
 //@access Public
 router.post("/", async (req, res) => {
-  const { categoryName, categoryNameBn, isActive } = req.body;
+  const { colorName, colorHexCode } = req.body;
   try {
-    let catName = await Category.findOne({ categoryName });
-    //see if user exists
-    if (catName) {
-      return res.status(400).json({ message: "Category already exist" });
+    let coName = await Color.findOne({ colorName });
+    let code = await Color.findOne({ colorHexCode });
+    console.log('coName,code', coName, code)
+    //see if color or code exists
+    if (coName) {
+      return res.status(400).json({ message: "Color Name already exist" });
+    } else if (code) {
+      return res.status(400).json({ message: "Color Code already exist" });
     }
-    category = new Category({ categoryName, categoryNameBn, isActive });
-    await category.save();
+    let color = new Color({ colorName, colorHexCode });
+    await color.save();
     res.status(200).json({
-      message: "Category inserted succesfully",
+      message: "Color inserted succesfully",
       status: true,
     });
   } catch (err) {
@@ -23,10 +27,10 @@ router.post("/", async (req, res) => {
     res.status(500).send("Server error");
   }
 });
-//all Category
+//all Color
 router.get("/", async (req, res) => {
   try {
-    await Category.find((err, data) => {
+    await Color.find((err, data) => {
       if (err) {
         res.status(500).json({
           error: "There was a server side error!",
@@ -34,7 +38,7 @@ router.get("/", async (req, res) => {
       } else {
         res.status(200).json({
           result: data,
-          message: "Todo was inserted successfully!",
+          message: "All color are showing!",
           status: true,
         });
       }
@@ -44,9 +48,9 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Category By ID//
+// Color By ID//
 router.get("/:id", async (req, res) => {
-  await Category.find({ _id: req.params.id }, (err, data) => {
+  await Color.find({ _id: req.params.id }, (err, data) => {
     if (err) {
       res.status(500).json({
         error: "There was a server side error!",
@@ -55,16 +59,16 @@ router.get("/:id", async (req, res) => {
       let [obj] = data;
       res.status(200).json({
         result: obj,
-        message: "Todo was inserted successfully!",
+        message: "Color by Id!",
         status: true,
       });
     }
   });
 });
 
-//Update Category
+//Update Color
 router.put("/:id", async (req, res) => {
-  await Category.updateOne(
+  await Color.updateOne(
     { _id: req.params.id },
     {
       $set: req.body,
@@ -76,7 +80,7 @@ router.put("/:id", async (req, res) => {
         });
       } else {
         res.status(200).json({
-          message: "Category were updated successfully!",
+          message: "Color were updated successfully!",
           status: true,
         });
       }
@@ -84,16 +88,16 @@ router.put("/:id", async (req, res) => {
   );
 });
 
-//delete category
+//delete color
 router.delete("/:id", async (req, res) => {
-  await Category.deleteOne({ _id: req.params.id }, (err) => {
+  await Color.deleteOne({ _id: req.params.id }, (err) => {
     if (err) {
       res.status(500).json({
         error: "There was a server side error!",
       });
     } else {
       res.status(200).json({
-        message: "Category was deleted successfully!",
+        message: "Color was deleted successfully!",
         status: true,
       });
     }
