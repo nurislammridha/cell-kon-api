@@ -29,4 +29,4 @@ app.use("/v1/sub-category", require("./routes/subCategory"));
 app.use("/v1/unit", require("./routes/unit"));
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => console.log(`Servet started on port ${PORT}`));
+app.listen(PORT, () => console.log(`Server started on port ${PORT}`));

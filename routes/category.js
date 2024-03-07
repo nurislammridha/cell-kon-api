@@ -5,14 +5,14 @@ const Category = require("../models/Category");
 //@desc Admin login
 //@access Public
 router.post("/", async (req, res) => {
-  const { categoryName, categoryNameBn, isActive } = req.body;
+  const { categoryName } = req.body;
   try {
     let catName = await Category.findOne({ categoryName });
     //see if user exists
     if (catName) {
       return res.status(400).json({ message: "Category already exist" });
     }
-    category = new Category({ categoryName, categoryNameBn, isActive });
+    let category = new Category({ categoryName });
     await category.save();
     res.status(200).json({
       message: "Category inserted succesfully",
@@ -34,7 +34,7 @@ router.get("/", async (req, res) => {
       } else {
         res.status(200).json({
           result: data,
-          message: "Todo was inserted successfully!",
+          message: "All category are showing!",
           status: true,
         });
       }
@@ -55,7 +55,7 @@ router.get("/:id", async (req, res) => {
       let [obj] = data;
       res.status(200).json({
         result: obj,
-        message: "Todo was inserted successfully!",
+        message: "Category was inserted successfully!",
         status: true,
       });
     }
