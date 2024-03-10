@@ -61,6 +61,22 @@ router.get("/:id", async (req, res) => {
     }
   });
 });
+//Sub Category By Category ID//
+router.get("/by-category/:id", async (req, res) => {
+  await SubCategory.find({ categoryId: req.params.id }, (err, data) => {
+    if (err) {
+      res.status(500).json({
+        error: "There was a server side error!",
+      });
+    } else {
+      res.status(200).json({
+        result: data,
+        message: "Sub Category By Category Id!",
+        status: true,
+      });
+    }
+  });
+});
 
 //Update Sub cateCategory
 router.put("/:id", async (req, res) => {

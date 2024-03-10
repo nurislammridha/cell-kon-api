@@ -1,21 +1,18 @@
 const express = require("express");
 const router = express.Router();
-const Category = require("../models/Category");
+const Product = require("../models/Product");
 //@route POST api/admin
 //@desc Admin login
 //@access Public
+
 router.post("/", async (req, res) => {
-  const { categoryName, categoryNameBn, isActive } = req.body;
+  const { productName } = req.body;
   try {
-    let catName = await Category.findOne({ categoryName });
-    //see if user exists
-    if (catName) {
-      return res.status(400).json({ message: "Category already exist" });
-    }
-    category = new Category({ categoryName, categoryNameBn, isActive });
-    await category.save();
+
+    let product = new Product(req.body);
+    await product.save();
     res.status(200).json({
-      message: "Category inserted succesfully",
+      message: "Product inserted succesfully",
       status: true,
     });
   } catch (err) {
@@ -23,10 +20,10 @@ router.post("/", async (req, res) => {
     res.status(500).send("Server error");
   }
 });
-//all Category
+//all Product
 router.get("/", async (req, res) => {
   try {
-    await Category.find((err, data) => {
+    await Product.find((err, data) => {
       if (err) {
         res.status(500).json({
           error: "There was a server side error!",
@@ -34,7 +31,7 @@ router.get("/", async (req, res) => {
       } else {
         res.status(200).json({
           result: data,
-          message: "Todo was inserted successfully!",
+          message: "All products list are showing!",
           status: true,
         });
       }
@@ -44,9 +41,9 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Category By ID//
+// Product By ID//
 router.get("/:id", async (req, res) => {
-  await Category.find({ _id: req.params.id }, (err, data) => {
+  await Product.find({ _id: req.params.id }, (err, data) => {
     if (err) {
       res.status(500).json({
         error: "There was a server side error!",
@@ -55,16 +52,32 @@ router.get("/:id", async (req, res) => {
       let [obj] = data;
       res.status(200).json({
         result: obj,
-        message: "Todo was inserted successfully!",
+        message: "Product By Id!",
+        status: true,
+      });
+    }
+  });
+});
+// Product By subCategory id ID//
+router.get("/sub-category-id/:id", async (req, res) => {
+  await Product.find({ subCategoryId: req.params.id }, (err, data) => {
+    if (err) {
+      res.status(500).json({
+        error: "There was a server side error!",
+      });
+    } else {
+      res.status(200).json({
+        result: data,
+        message: "Product By Subcategory Id!",
         status: true,
       });
     }
   });
 });
 
-//Update Category
+//Update Product
 router.put("/:id", async (req, res) => {
-  await Category.updateOne(
+  await Product.updateOne(
     { _id: req.params.id },
     {
       $set: req.body,
@@ -76,7 +89,7 @@ router.put("/:id", async (req, res) => {
         });
       } else {
         res.status(200).json({
-          message: "Category were updated successfully!",
+          message: "Product were updated successfully!",
           status: true,
         });
       }
@@ -84,16 +97,16 @@ router.put("/:id", async (req, res) => {
   );
 });
 
-//delete category
+//delete Product
 router.delete("/:id", async (req, res) => {
-  await Category.deleteOne({ _id: req.params.id }, (err) => {
+  await Product.deleteOne({ _id: req.params.id }, (err) => {
     if (err) {
       res.status(500).json({
         error: "There was a server side error!",
       });
     } else {
       res.status(200).json({
-        message: "Category was deleted successfully!",
+        message: "Product was deleted successfully!",
         status: true,
       });
     }

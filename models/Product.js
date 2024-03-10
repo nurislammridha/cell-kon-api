@@ -28,22 +28,18 @@ const ProductSchema = new mongoose.Schema({
     type: String,
     require: true,
   },
-  colorName: {
-    type: String,
-    require: true,
-  },
-  colorId: {
-    type: String,
-    require: true,
-  },
-  sizeName: {
-    type: String,
-    require: true,
-  },
-  sizeId: {
-    type: String,
-    require: true,
-  },
+  size: [
+    {
+      label: {
+        type: String,
+        require: true,
+      },
+      value: {
+        type: String,
+        require: true,
+      },
+    }
+  ],
   categoryName: {
     type: String,
     require: true,
@@ -83,15 +79,15 @@ const ProductSchema = new mongoose.Schema({
   commentsInfo: [{
     userName: {
       type: String,
-      require: true,
+      require: false,
     },
     userId: {
       type: String,
-      require: true,
+      require: false,
     },
     comment: {
       type: String,
-      require: true,
+      require: false,
     },
   }],
   availableQuantity: {
@@ -112,7 +108,7 @@ const ProductSchema = new mongoose.Schema({
   },
   viewCount: {
     type: Number,
-    require: true,
+    default: 0,
   },
   shortDescriptions: {
     type: String,
@@ -122,17 +118,49 @@ const ProductSchema = new mongoose.Schema({
     type: String,
     require: true,
   },
-  productImgUrl: [{
-    type: String,
-    require: true,
-  }],
-  productIconUrl: {
-    type: String,
-    require: true,
+  productImgColor: [
+    {
+      colorName: {
+        type: String,
+        require: true,
+      },
+      colorId: {
+        type: String,
+        require: true,
+      },
+      colorHexCode: {
+        type: String,
+        require: true,
+      },
+      url: {
+        type: String,
+        require: true,
+      },
+      publicId: {
+        type: String,
+        require: true,
+      }
+    }
+  ],
+  productIcon: {
+    url: {
+      type: String,
+      require: true,
+    },
+    publicId: {
+      type: String,
+      require: true,
+    }
   },
   relatedProducts: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "products"
+    label: {
+      type: String,
+      require: true,
+    },
+    value: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "products",
+    },
   }],
   isAvailableCashOnDelivery: {
     type: Boolean,
