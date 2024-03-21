@@ -52,7 +52,7 @@ const BuyerSchema = new mongoose.Schema({
   }],
   password: {
     type: String,
-    require: [true, 'Please add a password'],
+    require: false,
   },
 
 });

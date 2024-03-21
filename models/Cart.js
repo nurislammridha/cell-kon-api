@@ -1,29 +1,44 @@
 const mongoose = require("mongoose");
 const CartSchema = new mongoose.Schema({
-  buyerName: {
-    type: String,
-    require: true,
-  },
   buyerId: {
     type: String,
     require: true,
   },
+  buyerInfo: {
+    type: mongoose.Schema.Types.ObjectId,
+    require: true,
+    ref: 'Buyer'
+  },
   productInfo: [{
-    productId: {
+    productDetails: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "products"
+      require: true,
+      ref: "Product"
+    },
+    productId: {
+      type: String,
+      unique: true,
+      require: true
     },
     quantity: {
       type: Number,
       require: true
     },
-    colorId: {
+    colorName: {
       type: String,
-      require: true
+      require: false,
     },
-    sizeId: {
+    colorHexCode: {
       type: String,
-      require: true
+      require: false,
+    },
+    sizeName: {
+      type: String,
+      require: false,
+    },
+    productImgUrl: {
+      type: String,
+      require: false,
     },
   }],
   isActive: {

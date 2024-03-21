@@ -72,6 +72,11 @@ const ProductSchema = new mongoose.Schema({
     type: String,
     require: true,
   },
+  sellerInfo: {
+    type: mongoose.Schema.Types.ObjectId,
+    require: true,
+    ref: 'Seller'
+  },
   sellerRatings: {
     type: Number,
     require: true,
@@ -159,7 +164,7 @@ const ProductSchema = new mongoose.Schema({
     },
     value: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "products",
+      ref: "Product",
     },
   }],
   isAvailableCashOnDelivery: {

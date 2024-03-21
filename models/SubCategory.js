@@ -4,11 +4,19 @@ const SubCategorySchema = new mongoose.Schema({
     type: String,
     require: true,
   },
+  subCategoryImgUrl: {
+    type: String,
+    require: true,
+  },
   categoryName: {
     type: String,
     require: true,
   },
   categoryId: {
+    type: String,
+    require: true,
+  },
+  categoryImgUrl: {
     type: String,
     require: true,
   },
