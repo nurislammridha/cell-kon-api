@@ -13,6 +13,14 @@ const BuyerSchema = new mongoose.Schema({
     require: false,
   },
   addressInfo: [{
+    buyerName: {
+      type: String,
+      require: false,
+    },
+    buyerPhone: {
+      type: String,
+      require: false,
+    },
     division: {
       type: String,
       require: false,
@@ -21,7 +29,7 @@ const BuyerSchema = new mongoose.Schema({
       type: String,
       require: false,
     },
-    subDistrict: {
+    upazilla: {
       type: String,
       require: false,
     },
@@ -33,20 +41,16 @@ const BuyerSchema = new mongoose.Schema({
       type: String,
       require: false,
     },
-    house: {
-      type: String,
-      require: false,
-    },
-    street: {
-      type: String,
-      require: false,
-    },
     postalCode: {
       type: String,
       require: false,
     },
     detailsAddress: {
       type: String,
+      require: false,
+    },
+    isMetropolitan: {
+      type: Boolean,
       require: false,
     },
   }],

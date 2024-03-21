@@ -100,6 +100,32 @@ router.post("/login", async (req, res) => {
     res.status(500).send("Server error");
   }
 });
+//buyer login
+router.post("/delivery-address", async (req, res) => {
+  const { buyerId, addressInfo } = req.body;
+  try {
+    let isBuyer = await Buyer.findOne({ _id: buyerId })
+    // console.log('buyerId', buyerId)
+    // console.log('isBuyer', isBuyer)
+    if (isBuyer) {
+
+      await Buyer.updateOne({ _id: buyerId }, { $push: { addressInfo: addressInfo } });
+      return res.status(200).json({
+        message: "New delivery address created",
+        status: true,
+      });
+    } else {
+      return res.status(200).json({
+        message: `Your are n't found`,
+        status: false,
+      });
+    }
+
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server error");
+  }
+});
 //all Category
 router.get("/", async (req, res) => {
   try {
