@@ -173,6 +173,22 @@ router.post("/quantity", async (req, res) => {
   }
 })
 
+//remove multiple items of cart
+router.post("/delete-many", async (req, res) => {
+  const { cartId, productsArrId } = req.body
+  try {
+    // {"$pull":{"group_members":{"faculty_number":{$in:[8025,7323]}}}}
+    await Cart.updateOne({ _id: cartId }, { $pull: { productInfo: { _id: { $in: productsArrId } } } });
+    return res.status(200).json({
+      message: "Removed products from cart!",
+      status: true,
+    });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server error");
+  }
+});
+
 //Update Category
 router.put("/:id", async (req, res) => {
   await Category.updateOne(

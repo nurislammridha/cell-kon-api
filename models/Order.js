@@ -176,6 +176,14 @@ const OrderSchema = new mongoose.Schema({
     type: String,
     require: false,
   },
+  subTotal: {
+    type: Number,
+    require: false,
+  },
+  shippingFee: {
+    type: Number,
+    require: false,
+  },
   isActive: {
     type: String,
     default: true,
