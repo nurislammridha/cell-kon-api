@@ -126,7 +126,8 @@ router.post("/delivery-address", async (req, res) => {
     res.status(500).send("Server error");
   }
 });
-//all Category
+
+//all Buyer
 router.get("/", async (req, res) => {
   try {
     await Buyer.find((err, data) => {
@@ -137,7 +138,7 @@ router.get("/", async (req, res) => {
       } else {
         res.status(200).json({
           result: data,
-          message: "Todo was inserted successfully!",
+          message: "All buyer are showing!",
           status: true,
         });
       }
@@ -146,8 +147,7 @@ router.get("/", async (req, res) => {
     res.status(500).send("Server error");
   }
 });
-
-// Category By ID//
+// buyer By ID//
 router.get("/:id", async (req, res) => {
   await Buyer.find({ _id: req.params.id }, (err, data) => {
     if (err) {
@@ -158,7 +158,7 @@ router.get("/:id", async (req, res) => {
       let [obj] = data;
       res.status(200).json({
         result: obj,
-        message: "Todo was inserted successfully!",
+        message: "All buyer by buyer id!",
         status: true,
       });
     }

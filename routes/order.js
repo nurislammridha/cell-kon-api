@@ -1,21 +1,16 @@
 const express = require("express");
 const router = express.Router();
-const Category = require("../models/Category");
+const Order = require("../models/Order");
 //@route POST api/admin
 //@desc Admin login
 //@access Public
 router.post("/", async (req, res) => {
-  const { categoryName, categoryNameBn, isActive } = req.body;
+  // const {} = req.body;
   try {
-    let catName = await Category.findOne({ categoryName });
-    //see if user exists
-    if (catName) {
-      return res.status(400).json({ message: "Category already exist" });
-    }
-    category = new Category({ categoryName, categoryNameBn, isActive });
-    await category.save();
+    let ordar = new Order(req.body);
+    await ordar.save();
     res.status(200).json({
-      message: "Category inserted succesfully",
+      message: "Order Created Successfully",
       status: true,
     });
   } catch (err) {

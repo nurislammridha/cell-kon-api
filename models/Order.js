@@ -15,48 +15,82 @@ const OrderSchema = new mongoose.Schema({
   productInfo: [{
     products: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "products"
+      ref: "Product"
+    },
+    productId: {
+      type: String,
+      require: false
     },
     quantity: {
       type: Number,
       require: true
     },
-    colorId: {
+    colorName: {
       type: String,
-      require: true
+      require: false
     },
-    sizeId: {
+    sizeName: {
       type: String,
-      require: true
+      require: false
     },
     sellPrice: {
       type: String,
-      require: true
+      require: false
     },
     pastRp: {
       type: String,
-      require: true
+      require: false
     },
   }],
   orderStatus: {
     type: String,
-    require: true,
+    require: false,
   },
-  orderDate: {
-    type: String,
-    require: true,
-  },
-  deliveryAddress: {
-    type: String,
-    require: true,
-  },
-  receiverPhone: {
-    type: String,
-    require: true,
+  deliveryAddressInfo: {
+    buyerName: {
+      type: String,
+      require: false,
+    },
+    buyerPhone: {
+      type: String,
+      require: false,
+    },
+    division: {
+      type: String,
+      require: false,
+    },
+    district: {
+      type: String,
+      require: false,
+    },
+    upazilla: {
+      type: String,
+      require: false,
+    },
+    nearestArea: {
+      type: String,
+      require: false,
+    },
+    union: {
+      type: String,
+      require: false,
+    },
+    postalCode: {
+      type: String,
+      require: false,
+    },
+    detailsAddress: {
+      type: String,
+      require: false,
+    },
+    isMetropolitan: {
+      type: Boolean,
+      require: false,
+    },
   },
   deliveryDate: {
     type: String,
-    require: true,
+    require: false,
   },
   isCreated: {
     type: Boolean,
@@ -64,7 +98,7 @@ const OrderSchema = new mongoose.Schema({
   },
   createdAt: {
     type: String,
-    require: true,
+    require: false,
   },
   isConfirm: {
     type: Boolean,
@@ -72,7 +106,7 @@ const OrderSchema = new mongoose.Schema({
   },
   confirmedAt: {
     type: String,
-    require: true,
+    require: false,
   },
   isProcessing: {
     type: Boolean,
@@ -80,7 +114,7 @@ const OrderSchema = new mongoose.Schema({
   },
   processedAt: {
     type: String,
-    require: true,
+    require: false,
   },
   isPicked: {
     type: Boolean,
@@ -88,7 +122,7 @@ const OrderSchema = new mongoose.Schema({
   },
   pickedAt: {
     type: String,
-    require: true,
+    require: false,
   },
   isShipped: {
     type: Boolean,
@@ -96,7 +130,7 @@ const OrderSchema = new mongoose.Schema({
   },
   shippedAt: {
     type: String,
-    require: true,
+    require: false,
   },
   isDelivered: {
     type: Boolean,
@@ -104,7 +138,7 @@ const OrderSchema = new mongoose.Schema({
   },
   deliveredAt: {
     type: String,
-    require: true,
+    require: false,
   },
   isCancel: {
     type: Boolean,
@@ -112,7 +146,7 @@ const OrderSchema = new mongoose.Schema({
   },
   cancelAt: {
     type: String,
-    require: true,
+    require: false,
   },
   cancelReason: {
     type: String,

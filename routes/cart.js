@@ -105,12 +105,22 @@ router.get("/buyer/:id", async (req, res) => {
         error: "There was a server side error!",
       });
     } else {
-      const [obj] = data
-      res.status(200).json({
-        result: obj,
-        message: "Cart data by buyer id are showing!",
-        status: true,
-      });
+      console.log('data', data)
+      if (data.length > 0) {
+        const [obj] = data
+        res.status(200).json({
+          result: obj,
+          message: "Cart data by buyer id are showing!",
+          status: true,
+        });
+      } else {
+        res.status(200).json({
+          result: {},
+          message: "No cart add yet!",
+          status: false,
+        });
+      }
+
     }
   }).populate("productInfo.productDetails");
 })
