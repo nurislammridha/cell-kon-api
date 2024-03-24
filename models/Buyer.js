@@ -7,10 +7,37 @@ const BuyerSchema = new mongoose.Schema({
   buyerPhone: {
     type: String,
     require: false,
+    default: ""
   },
   buyerEmail: {
     type: String,
     require: false,
+    default: ""
+  },
+  buyerGender: {
+    type: String,
+    require: false,
+    default: ""
+  },
+  birthDays: {
+    type: String,
+    require: false,
+    default: ""
+  },
+  birthMonth: {
+    type: String,
+    require: false,
+    default: ""
+  },
+  birthYear: {
+    type: String,
+    require: false,
+    default: ""
+  },
+  buyerImgUrl: {
+    type: String,
+    require: false,
+    default: ""
   },
   addressInfo: [{
     buyerName: {

@@ -22,7 +22,7 @@ router.post("/", async (req, res) => {
     res.status(500).send("Server error");
   }
 });
-//all Product
+//all Products ;ist
 router.get("/", async (req, res) => {
   try {
     await Product.find((err, data) => {
@@ -39,6 +39,40 @@ router.get("/", async (req, res) => {
       }
     });
   } catch (error) {
+    res.status(500).send("Server error");
+  }
+});
+//all Products by filter shop and categories
+router.post("/filter", async (req, res) => {
+  //short low to high 1// high to low -1
+  const { categoriesId, sellersId, isShortBy, short } = req.body
+  // console.log('req.body', req.body)
+  // const filteredProducts= productModel.find({ categories:{$in:categories}  })
+  try {
+    let pro = []
+    if (categoriesId.length > 0 && sellersId.length > 0) {
+      !isShortBy ? pro = await Product.find({ categoryId: { $in: categoriesId }, sellerId: { $in: sellersId } }) :
+        pro = await Product.find({ categoryId: { $in: categoriesId }, sellerId: { $in: sellersId } }).sort({ mrp: short })
+    } else if (categoriesId.length > 0) {
+      !isShortBy ? pro = await Product.find({ categoryId: { $in: categoriesId } }) :
+        pro = await Product.find({ categoryId: { $in: categoriesId } }).sort({ mrp: short })
+    } else if (sellersId.length > 0) {
+      !isShortBy ? pro = await Product.find({ sellerId: { $in: sellersId } }) :
+        pro = await Product.find({ sellerId: { $in: sellersId } }).sort({ mrp: short })
+    } else if (categoriesId.length === 0 && sellersId.length === 0) {
+      !isShortBy ? pro = await Product.find() :
+        pro = await Product.find().sort({ mrp: short })
+    }
+    console.log('pro', pro)
+    if (pro) {
+      res.status(200).json({
+        result: pro,
+        message: "All products filter list are showing!",
+        status: true,
+      });
+    }
+  } catch (error) {
+    console.log('error', error)
     res.status(500).send("Server error");
   }
 });

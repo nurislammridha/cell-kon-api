@@ -165,7 +165,7 @@ router.get("/:id", async (req, res) => {
   });
 });
 
-//Update Category
+//Update buyer by id
 router.put("/:id", async (req, res) => {
   await Buyer.updateOne(
     { _id: req.params.id },
@@ -179,7 +179,7 @@ router.put("/:id", async (req, res) => {
         });
       } else {
         res.status(200).json({
-          message: "Category were updated successfully!",
+          message: "User info were updated successfully!",
           status: true,
         });
       }

@@ -18,10 +18,10 @@ router.post("/", async (req, res) => {
     res.status(500).send("Server error");
   }
 });
-//all Category
+//all Order
 router.get("/", async (req, res) => {
   try {
-    await Category.find((err, data) => {
+    await Order.find((err, data) => {
       if (err) {
         res.status(500).json({
           error: "There was a server side error!",
@@ -29,7 +29,7 @@ router.get("/", async (req, res) => {
       } else {
         res.status(200).json({
           result: data,
-          message: "Todo was inserted successfully!",
+          message: "All order are showing!",
           status: true,
         });
       }
@@ -39,27 +39,65 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Category By ID//
-router.get("/:id", async (req, res) => {
-  await Category.find({ _id: req.params.id }, (err, data) => {
+
+// Order By Status//
+router.get("/order-status", async (req, res) => {
+  // console.log('req.query.orderStatus', req.query.orderStatus)
+  await Order.find({ orderStatus: req.query.orderStatus }, (err, data) => {
     if (err) {
       res.status(500).json({
         error: "There was a server side error!",
       });
     } else {
-      let [obj] = data;
       res.status(200).json({
-        result: obj,
-        message: "Todo was inserted successfully!",
+        result: data,
+        message: "Order by status are showing!",
         status: true,
       });
     }
   });
 });
+// Order By Buyer//
+router.get("/buyer/:id", async (req, res) => {
+  await Order.find({ buyerId: req.params.id }, (err, data) => {
+    if (err) {
+      res.status(500).json({
+        error: "There was a server side error!",
+      });
+    } else {
+      res.status(200).json({
+        result: data,
+        message: "Order by buyer are showing!",
+        status: true,
+      });
+    }
+  });
+});
+// Order By ID//
+router.get("/order-details/:id", async (req, res) => {
+  try {
+    await Order.find({ _id: req.params.id }, (err, data) => {
+      if (err) {
+        res.status(500).json({
+          error: "There was a server side error!",
+        });
+      } else {
+        let [obj] = data;
+        res.status(200).json({
+          result: obj,
+          message: "Order by id are showing!",
+          status: true,
+        });
+      }
+    }).populate('buyerInfo').populate('productInfo.products');
+  } catch (error) {
+    res.status(500).send("Server error");
+  }
 
-//Update Category
+});
+//Update Order
 router.put("/:id", async (req, res) => {
-  await Category.updateOne(
+  await Order.updateOne(
     { _id: req.params.id },
     {
       $set: req.body,
@@ -71,7 +109,7 @@ router.put("/:id", async (req, res) => {
         });
       } else {
         res.status(200).json({
-          message: "Category were updated successfully!",
+          message: "Order were updated successfully!",
           status: true,
         });
       }
