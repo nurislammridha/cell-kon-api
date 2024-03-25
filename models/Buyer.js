@@ -35,9 +35,14 @@ const BuyerSchema = new mongoose.Schema({
     default: ""
   },
   buyerImgUrl: {
-    type: String,
-    require: false,
-    default: ""
+    url: {
+      type: String,
+      require: true,
+    },
+    publicId: {
+      type: String,
+      require: true,
+    }
   },
   addressInfo: [{
     buyerName: {

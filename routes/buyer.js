@@ -100,7 +100,7 @@ router.post("/login", async (req, res) => {
     res.status(500).send("Server error");
   }
 });
-//buyer login
+//add delivery address
 router.post("/delivery-address", async (req, res) => {
   const { buyerId, addressInfo } = req.body;
   try {
@@ -112,6 +112,47 @@ router.post("/delivery-address", async (req, res) => {
       await Buyer.updateOne({ _id: buyerId }, { $push: { addressInfo: addressInfo } });
       return res.status(200).json({
         message: "New delivery address created",
+        status: true,
+      });
+    } else {
+      return res.status(200).json({
+        message: `Your are n't found`,
+        status: false,
+      });
+    }
+
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server error");
+  }
+});
+//get details delivery address
+router.put("/update-delivery-address", async (req, res) => {
+  const { buyerId, addressId, addressInfo } = req.body;
+  const { buyerName, buyerPhone, detailsAddress, district, division, isMetropolitan, nearestArea, postalCode, union, upazilla } = addressInfo || {}
+  try {
+    let isBuyer = await Buyer.findOne({ _id: buyerId })
+    // console.log('buyerId', buyerId)
+    // console.log('isBuyer', isBuyer)
+    if (isBuyer) {
+
+      let data = await Buyer.updateOne({ _id: buyerId, "addressInfo._id": addressId }, {
+        $set: {
+          "addressInfo.$.buyerName": buyerName,
+          "addressInfo.$.buyerPhone": buyerPhone,
+          "addressInfo.$.detailsAddress": detailsAddress,
+          "addressInfo.$.district": district,
+          "addressInfo.$.division": division,
+          "addressInfo.$.isMetropolitan": isMetropolitan,
+          "addressInfo.$.nearestArea": nearestArea,
+          "addressInfo.$.postalCode": postalCode,
+          "addressInfo.$.union": union,
+          "addressInfo.$.upazilla": upazilla
+        }
+      });
+      return res.status(200).json({
+        result: data,
+        message: "Delivery address were updated",
         status: true,
       });
     } else {

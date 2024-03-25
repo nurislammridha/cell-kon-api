@@ -141,7 +141,7 @@ router.get("/:id", async (req, res) => {
         status: true,
       });
     }
-  }).populate('relatedProducts.value').populate('sellerId');
+  }).populate('relatedProducts.value').populate('sellerInfo');
 });
 // Product By subCategory id ID//
 router.get("/sub-category-id/:id", async (req, res) => {
