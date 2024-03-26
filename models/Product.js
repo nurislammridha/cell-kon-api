@@ -109,7 +109,7 @@ const ProductSchema = new mongoose.Schema({
   },
   isTrending: {
     type: Boolean,
-    default: true,
+    default: false,
   },
   viewCount: {
     type: Number,

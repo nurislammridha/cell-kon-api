@@ -20,9 +20,15 @@ const SellerSchema = new mongoose.Schema({
     type: Number,
     default: 1,
   },
-  shopLogoUrl: {
-    type: String,
-    require: true,
+  shopLogo: {
+    url: {
+      type: String,
+      require: true,
+    },
+    publicId: {
+      type: String,
+      require: true,
+    }
   },
   sellerPhone: {
     type: String,

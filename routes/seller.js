@@ -5,14 +5,14 @@ const Seller = require("../models/Seller");
 //@desc Admin login
 //@access Public
 router.post("/", async (req, res) => {
-  const { sellerName, sellerAddress, shopName, deliveryPeriod, shopLogoUrl, sellerPhone, sellerEmail } = req.body;
+  const { sellerName, sellerAddress, shopName, deliveryPeriod, shopLogo, sellerPhone, sellerEmail } = req.body;
   try {
     let selPhone = await Seller.findOne({ sellerPhone });
     //see if user exists
     if (selPhone) {
       return res.status(400).json({ message: "Seller already exist with these phone number." });
     }
-    let seller = new Seller({ sellerName, sellerAddress, shopName, deliveryPeriod, shopLogoUrl, sellerPhone, sellerEmail });
+    let seller = new Seller({ sellerName, sellerAddress, shopName, deliveryPeriod, shopLogo, sellerPhone, sellerEmail });
     await seller.save();
     res.status(200).json({
       message: "Seller inserted succesfully",

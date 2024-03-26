@@ -89,7 +89,7 @@ router.post("/filter", async (req, res) => {
 //const mostRecentRecord = await db.collection.findOne().sort({ _id: -1 });
 router.get("/home-page", async (req, res) => {
   try {
-    let sellKonMallProducts = await Product.find({ sellerId: "65f92c259171ac3e404a03b2" });
+    let sellKonMallProducts = await Product.find({ sellerId: "6602d7dfdf403e1264fffccc" });
     let trendingProducts = await Product.find({ isTrending: true });
     let popularProducts = await Product.find().sort({ viewCount: -1 }).limit(15);
     let shopsList = await Seller.find();
