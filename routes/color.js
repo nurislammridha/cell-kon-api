@@ -8,14 +8,15 @@ router.post("/", async (req, res) => {
   const { colorName, colorHexCode } = req.body;
   try {
     let coName = await Color.findOne({ colorName });
-    let code = await Color.findOne({ colorHexCode });
-    console.log('coName,code', coName, code)
+    // let code = await Color.findOne({ colorHexCode });
+    // console.log('coName,code', coName, code)
     //see if color or code exists
     if (coName) {
       return res.status(400).json({ message: "Color Name already exist" });
-    } else if (code) {
-      return res.status(400).json({ message: "Color Code already exist" });
     }
+    //  else if (code) {
+    //   return res.status(400).json({ message: "Color Code already exist" });
+    // }
     let color = new Color({ colorName, colorHexCode });
     await color.save();
     res.status(200).json({
