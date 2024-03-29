@@ -170,6 +170,11 @@ const ProductSchema = new mongoose.Schema({
   isAvailableCashOnDelivery: {
     type: Boolean,
     default: true
-  }
+  },
+  videoUrl: [{
+    type: String,
+    require: false,
+    default: ""
+  }]
 });
 module.exports = Product = mongoose.model("Product", ProductSchema);
