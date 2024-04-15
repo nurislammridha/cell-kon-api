@@ -109,7 +109,7 @@ const buyerLogin = async (req, res) => {
                 });
             } else {
                 return res.status(200).json({
-                    message: `Your phone number is n't found`,
+                    message: `Your phone number is n't found in system`,
                     result: "",
                     status: true,
                     isLogin: false
