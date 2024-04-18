@@ -1,35 +1,37 @@
-const jwt = require('jsonwebtoken')
-const asyncHandler = require('express-async-handler')
-const Admin = require('../models/Admin')
+const jwt = require("jsonwebtoken");
+const ErrorResponse = require("../utils/errorResponse");
 
-const adminProtect = asyncHandler(async (req, res, next) => {
-  let token
-
+const protect = async (req, res, next) => {
+  let token;
+  let bearerToken = req.headers.authorization
   if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith('Bearer')
+    bearerToken &&
+    bearerToken.startsWith("Bearer")
   ) {
-    try {
-      token = req.headers.authorization.split(' ')[1]
-      const decoded = jwt.verify(token, process.env.JWT_SECRET)
-      req.admin = await Admin.findById(decoded.id).select('-password')
-      if (!req.user) {
-        res.status(401)
-        throw new Error('Not authirised')
-      }
-
-      next()
-    } catch (error) {
-      console.log(error)
-      res.status(401)
-      throw new Error('Not authorized')
-    }
+    token = req.headers.authorization.split(" ")[1];
   }
 
   if (!token) {
-    res.status(401)
-    throw new Error('Not authorized')
+    return next(new ErrorResponse("Not authorized to access this route", 401));
   }
-})
+  const decoded = jwt.verify(token, "123456789");
+  console.log(decoded)
+  try {
 
-module.exports = { adminProtect }
+    const decoded = jwt.verify(token, "123456789");
+
+    if (decoded.email === "support@sellkon.com") {
+      return next(new ErrorResponse("No user found with this id", 404));
+    }
+
+    req.user = user;
+
+    next();
+  } catch (err) {
+    return next(new ErrorResponse("Not authorized to access this router", 401));
+  }
+};
+
+//test git
+module.exports = protect;
+
