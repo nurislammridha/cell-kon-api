@@ -166,6 +166,78 @@ const buyerLogin = async (req, res) => {
         res.status(500).send("Server error");
     }
 };
+//social media login
+
+const socialLogin = async (req, res) => {
+    const { buyerName, buyerPhone, buyerEmail, googleId, buyerImgUrl, isNewUser, providerId } = req.body;
+    try {
+        if (isNewUser) {
+            //sign up
+            let buyerInfo = new Buyer({ buyerName, buyerEmail, buyerPhone, googleId, buyerImgUrl, providerId, password: "sellKonSocial" });
+            buyerInfo.save((err, data) => {
+                if (err) {
+                    res.status(500).json({
+                        error: "There was a server side error!",
+                    });
+                } else {
+                    // console.log('data', data)
+                    const payload = {
+                        id: data._id,
+                        // name: mail.name
+                    };
+                    jwt.sign(
+                        payload,
+                        keys.key,
+                        {
+                            expiresIn: 31556926 // 1 year in seconds
+                        },
+                        (err, token) => {
+                            // console.log('data', data)
+                            data.password = ""
+                            // console.log('phone123', phone)
+                            return res.status(200).json({
+                                message: `You are logged in`,
+                                result: data,
+                                token: "Bearer " + token,
+                                status: true,
+                                isLogin: true
+                            });
+                        }
+                    );
+                }
+            });
+        } else {
+            const obj = await Buyer.findOne({ googleId })
+            // console.log('obj', obj)
+            const payload = {
+                id: obj._id,
+                // name: mail.name
+            };
+            jwt.sign(
+                payload,
+                keys.key,
+                {
+                    expiresIn: 31556926 // 1 year in seconds
+                },
+                (err, token) => {
+                    obj.password = ""
+                    // console.log('phone123', phone)
+                    return res.status(200).json({
+                        message: `You are logged in`,
+                        result: obj,
+                        token: "Bearer " + token,
+                        status: true,
+                        isLogin: true
+                    });
+                }
+            );
+        }
+
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send("Server error");
+    }
+};
 //add delivery address
 const deliveryAddress = async (req, res) => {
     const { buyerId, addressInfo } = req.body;
@@ -309,4 +381,4 @@ const deleteBuyer = async (req, res) => {
         }
     });
 };
-module.exports = { createBuyer, buyerLogin, deliveryAddress, updateDeliveryAddress, allBuyerList, allBuyerById, updateBuyer, deleteBuyer };
+module.exports = { socialLogin, createBuyer, buyerLogin, deliveryAddress, updateDeliveryAddress, allBuyerList, allBuyerById, updateBuyer, deleteBuyer };

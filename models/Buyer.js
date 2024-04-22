@@ -90,6 +90,14 @@ const BuyerSchema = new mongoose.Schema({
     type: String,
     require: false,
   },
+  googleId: {
+    type: String,
+    default: ""
+  },
+  providerId: {
+    type: String,
+    default: ""
+  }
 
 });
 module.exports = Buyer = mongoose.model("Buyer", BuyerSchema);
