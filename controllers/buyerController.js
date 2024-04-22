@@ -166,7 +166,7 @@ const buyerLogin = async (req, res) => {
         res.status(500).send("Server error");
     }
 };
-//social media login
+//social media login //
 
 const socialLogin = async (req, res) => {
     const { buyerName, buyerPhone, buyerEmail, googleId, buyerImgUrl, isNewUser, providerId } = req.body;
