@@ -25,18 +25,41 @@ const createProduct = async (req, res) => {
 //all Products ;ist
 const allProducts = async (req, res) => {
   try {
-    await Product.find((err, data) => {
-      if (err) {
-        res.status(500).json({
-          error: "There was a server side error!",
-        });
-      } else {
-        res.status(200).json({
-          result: data,
-          message: "All products list are showing!",
-          status: true,
-        });
-      }
+    const search = req.query.search || ""
+    const page = Number(req.query.page) || 1
+    const limit = Number(req.query.limit) || 5
+    const searchRegExp = new RegExp('.*' + search + '.*', 'i')
+    const filter = {
+      $or: [
+        { productName: { $regex: searchRegExp } },
+        { categoryName: { $regex: searchRegExp } },
+        { brandName: { $regex: searchRegExp } },
+        { sellerName: { $regex: searchRegExp } }
+      ]
+    }
+    const products = await Product.find(filter).sort({ _id: -1 }).limit(limit).skip((page - 1) * limit)
+    const count = await Product.find(filter).countDocuments()
+
+    if (!products) {
+      res.status(200).json({
+        result: [],
+        message: "No data found",
+        status: true,
+      });
+    }
+
+    res.status(200).json({
+      result: {
+        products,
+        pagination: {
+          totalPage: Math.ceil(count / limit),
+          currentPage: page,
+          previousPage: page - 1 > 0 ? page - 1 : null,
+          nextPage: page + 1 <= Math.ceil(count / limit) ? page + 1 : null,
+        }
+      },
+      message: "All products list are showing!",
+      status: true,
     });
   } catch (error) {
     res.status(500).send("Server error");
@@ -45,28 +68,58 @@ const allProducts = async (req, res) => {
 //all Products by filter shop and categories
 const allProductsByShopsAndCategories = async (req, res) => {
   //short low to high 1// high to low -1
-  const { categoriesId, sellersId, isShortBy, short } = req.body
+  const { categoriesId, sellersId, isShortBy, short, search = "", page: pageNumber, limit: limitNumber } = req.body || {}
   // console.log('req.body', req.body)
   // const filteredProducts= productModel.find({ categories:{$in:categories}  })
+  //  isShortBy === true then sort 0, low to high -1, high to low 1
+  const page = Number(pageNumber) || 1
+  const limit = Number(limitNumber) || 5
+  const searchRegExp = new RegExp('.*' + search + '.*', 'i')
+  const filter = {
+    $or: [
+      { productName: { $regex: searchRegExp } },
+      { categoryName: { $regex: searchRegExp } },
+      { brandName: { $regex: searchRegExp } },
+      { sellerName: { $regex: searchRegExp } },
+      // { categoryId: { $in: categoriesId } },
+      // { sellerId: { $in: sellersId } }
+    ]
+  }
+  let sortObj = {}
+  if (isShortBy) {
+    sortObj = { mrp: short }
+  } else {
+    sortObj = { _id: -1 }
+  }
   try {
     let pro = []
+    let count = 0
     if (categoriesId.length > 0 && sellersId.length > 0) {
-      !isShortBy ? pro = await Product.find({ categoryId: { $in: categoriesId }, sellerId: { $in: sellersId } }).populate('sellerInfo') :
-        pro = await Product.find({ categoryId: { $in: categoriesId }, sellerId: { $in: sellersId } }).populate('sellerInfo').sort({ mrp: short })
+      pro = await Product.find(filter).where("categoryId").in(categoriesId).where("sellerId").in(sellersId).populate('sellerInfo').sort(sortObj).limit(limit).skip((page - 1) * limit)
+      count = await Product.find(filter).where("categoryId").in(categoriesId).where("sellerId").in(sellersId).countDocuments()
     } else if (categoriesId.length > 0) {
-      !isShortBy ? pro = await Product.find({ categoryId: { $in: categoriesId } }).populate('sellerInfo') :
-        pro = await Product.find({ categoryId: { $in: categoriesId } }).populate('sellerInfo').sort({ mrp: short })
+      pro = await Product.find(filter).where("categoryId").in(categoriesId).populate('sellerInfo').sort(sortObj).limit(limit).skip((page - 1) * limit)
+      count = await Product.find(filter).where("categoryId").in(categoriesId).countDocuments()
     } else if (sellersId.length > 0) {
-      !isShortBy ? pro = await Product.find({ sellerId: { $in: sellersId } }).populate('sellerInfo') :
-        pro = await Product.find({ sellerId: { $in: sellersId } }).populate('sellerInfo').sort({ mrp: short })
+      pro = await Product.find(filter).where("sellerId").in(sellersId).populate('sellerInfo').sort(sortObj).limit(limit).skip((page - 1) * limit)
+      count = await Product.find(filter).where("sellerId").in(sellersId).countDocuments()
     } else if (categoriesId.length === 0 && sellersId.length === 0) {
-      !isShortBy ? pro = await Product.find().populate('sellerInfo') :
-        pro = await Product.find().sort({ mrp: short }).populate('sellerInfo')
+      pro = await Product.find(filter).populate('sellerInfo').sort(sortObj).limit(limit).skip((page - 1) * limit)
+      count = await Product.find(filter).populate('sellerInfo').countDocuments()
     }
+    // pro = await Product.find(filter).where("categoryId").in(categoriesId).populate('sellerInfo').sort(sortObj)
     // console.log('pro', pro)
     if (pro) {
       res.status(200).json({
-        result: pro,
+        result: {
+          products: pro,
+          pagination: {
+            totalPage: Math.ceil(count / limit),
+            currentPage: page,
+            previousPage: page - 1 > 0 ? page - 1 : null,
+            nextPage: page + 1 <= Math.ceil(count / limit) ? page + 1 : null,
+          }
+        },
         message: "All products filter list are showing!",
         status: true,
       });
