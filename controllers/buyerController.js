@@ -1,70 +1,237 @@
 const express = require("express");
-const router = express.Router();
 const Buyer = require("../models/Buyer");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const keys = require('../config/key');
+const otpGenerator = require('otp-generator');
+const OTP = require('../models/OtpEmail');
+const OtpEmail = require("../models/OtpEmail");
+const ForgetOtpEmail = require("../models/ForgetOtpEmail");
 //@route POST api/admin
 //@desc Buyer signup
 //@access Public
 const createBuyer = async (req, res) => {
-    const { buyerPhone, buyerEmail, buyerName, password } = req.body;
+    const { buyerPhone, buyerEmail, buyerName, password, otp } = req.body;
     try {
         let isPhone = false
         let isMail = false
-        if (buyerPhone.length > 0) {
-            isPhone = await Buyer.findOne({ buyerPhone })
+        let otpObj = await OtpEmail.findOne({ email: buyerEmail }) || {}
+        if (otp === otpObj?.otp) {
+            let buyerInfo = new Buyer({ buyerName, buyerEmail, buyerPhone, password });
+
+            // Hash password before saving in database
+            bcrypt.genSalt(10, (err, salt) => {
+                bcrypt.hash(buyerInfo.password, salt, (err, hash) => {
+                    if (err) throw err;
+                    buyerInfo.password = hash;
+                    // console.log('buyerInfo', buyerInfo)
+                    buyerInfo.save((err, data) => {
+                        if (err) {
+                            res.status(500).json({
+                                error: "There was a server side error!",
+                            });
+                        } else {
+                            res.status(200).json({
+                                result: data,
+                                message: "Sign Up Completed, Please Login!",
+                                status: true,
+                                isSignUp: true
+                            });
+                        }
+                    });
+                });
+            });
         } else {
-            isMail = await Buyer.findOne({ buyerEmail })
+            return res.status(200).json({
+                result: data,
+                message: "Wrong Otp, Please try again!",
+                status: true,
+                isSignUp: false
+            });
         }
+        return 0
+        // if (buyerPhone.length > 0) {
+        //     isPhone = await Buyer.findOne({ buyerPhone })
+        // } else {
+        //     isMail = await Buyer.findOne({ buyerEmail })
+        // }
         // let isExist = await Buyer.findOne({ $or: [{ buyerPhone }, { buyerEmail }] });
         //see if user exists
         // console.log('isExist', isPhone, isMail)
-        if (isPhone) {
-            return res.status(200).json({
-                message: `You are already our member with this ${buyerPhone}, Please login`,
-                result: "",
-                status: true,
-                isSignUp: false
-            });
-        } else if (isMail) {
-            return res.status(200).json({
-                message: `You are already our member with this ${buyerEmail}, Please login`,
-                result: "",
-                status: true,
-                isSignUp: false
-            });
-        }
-        let buyerInfo = new Buyer({ buyerName, buyerEmail, buyerPhone, password });
-        // Hash password before saving in database
+        // if (isPhone) {
+        //     return res.status(200).json({
+        //         message: `You are already our member with this ${buyerPhone}, Please login`,
+        //         result: "",
+        //         status: true,
+        //         isSignUp: false
+        //     });
+        // } else if (isMail) {
+        //     return res.status(200).json({
+        //         message: `You are already our member with this ${buyerEmail}, Please login`,
+        //         result: "",
+        //         status: true,
+        //         isSignUp: false
+        //     });
+        // }
+
         // console.log('buye', buyerInfo)
-        bcrypt.genSalt(10, (err, salt) => {
-            bcrypt.hash(buyerInfo.password, salt, (err, hash) => {
-                if (err) throw err;
-                buyerInfo.password = hash;
-                // console.log('buyerInfo', buyerInfo)
-                buyerInfo.save((err, data) => {
-                    if (err) {
-                        res.status(500).json({
-                            error: "There was a server side error!",
-                        });
-                    } else {
-                        res.status(200).json({
-                            result: data,
-                            message: "Welcome to SellKon!",
-                            status: true,
-                            isSignUp: true
-                        });
-                    }
-                });
-            });
-        });
+
 
     } catch (err) {
         console.error(err.message);
         res.status(500).send("Server error");
     }
 };
+//send otp through email
+const sendEmailOtp = async (req, res) => {
+    const { email } = req.body
+    try {
+        // Check if user is already present
+        const checkUserPresent = await Buyer.findOne({ buyerEmail: email });
+        // If user found with provided email
+        if (checkUserPresent) {
+            return res.status(200).json({
+                message: `You are already our member with this ${email}, Please login`,
+                result: "",
+                status: true,
+                isSignUp: false
+            });
+        }
+        let otp = otpGenerator.generate(6, {
+            upperCaseAlphabets: false,
+            lowerCaseAlphabets: false,
+            specialChars: false,
+        });
+        let result = await OTP.findOne({ otp: otp });
+        while (result) {
+            otp = otpGenerator.generate(6, {
+                upperCaseAlphabets: false,
+            });
+            result = await OTP.findOne({ otp: otp });
+        }
+        const otpPayload = { email, otp };
+        const otpBody = await OTP.create(otpPayload);
+        res.status(200).json({
+            result: otp,
+            message: 'OTP sent successfully',
+            status: true
+        });
+    } catch (err) {
+        console.log('error', err)
+    }
+}
+//send otp through email for forget password
+const forgetPasswordOtp = async (req, res) => {
+    const { buyerEmail } = req.body
+    try {
+        // Check if user is already present
+        const checkUserPresent = await Buyer.findOne({ buyerEmail });
+        // If user found with provided email
+        if (checkUserPresent) {
+            let otp = otpGenerator.generate(6, {
+                upperCaseAlphabets: false,
+                lowerCaseAlphabets: false,
+                specialChars: false,
+            });
+            let result = await ForgetOtpEmail.findOne({ otp: otp });
+            while (result) {
+                otp = otpGenerator.generate(6, {
+                    upperCaseAlphabets: false,
+                });
+                result = await OTP.findOne({ otp: otp });
+            }
+            const otpPayload = { email: buyerEmail, otp };
+            const otpBody = await ForgetOtpEmail.create(otpPayload);
+            return res.status(200).json({
+                result: otp,
+                message: 'OTP sent successfully',
+                status: true
+            });
+
+        } else {
+            return res.status(200).json({
+                result: "",
+                message: "You are n't our member, Please sign up",
+                status: false
+            });
+        }
+
+    } catch (err) {
+        console.log('error', err)
+    }
+}
+//password update after match otp 
+const setPassword = async (req, res) => {
+    const { buyerEmail, password, otp } = req.body;
+    try {
+        let otpObj = await ForgetOtpEmail.findOne({ email: buyerEmail }) || {}
+        if (otp === otpObj?.otp) {
+            // Hash password before saving in database
+            bcrypt.genSalt(10, (err, salt) => {
+                bcrypt.hash(password, salt, (err, hash) => {
+                    if (err) throw err;
+                    //update password
+                    Buyer.updateOne(
+                        { buyerEmail },
+                        {
+                            $set: { password: hash },
+                        },
+                        (err) => {
+                            if (err) {
+                                res.status(500).json({
+                                    error: "There was a server side error!",
+                                });
+                            } else {
+                                res.status(200).json({
+                                    message: "New password set successfully!",
+                                    status: true,
+                                });
+                            }
+                        }
+                    );
+
+                });
+            });
+        } else {
+            return res.status(200).json({
+                result: data,
+                message: "Wrong Otp, Please try again!",
+                status: false,
+            });
+        }
+        return 0
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send("Server error");
+    }
+};
+//check buyer through email
+const checkBuyer = async (req, res) => {
+    const { buyerEmail } = req.body
+    try {
+        // Check if user is already present
+        const checkUserPresent = await Buyer.findOne({ buyerEmail });
+        // If user found with provided email
+        if (checkUserPresent) {
+            return res.status(200).json({
+                message: ``,
+                result: "",
+                status: true,
+                isPresent: true
+            });
+        } else {
+            return res.status(200).json({
+                message: `${buyerEmail} is n't found, Please sign up`,
+                result: "",
+                status: true,
+                isPresent: false
+            });
+        }
+
+    } catch (err) {
+        console.log('error', err)
+    }
+}
 //buyer login
 const buyerLogin = async (req, res) => {
     const { buyerPhone, buyerEmail, password } = req.body;
@@ -381,4 +548,4 @@ const deleteBuyer = async (req, res) => {
         }
     });
 };
-module.exports = { socialLogin, createBuyer, buyerLogin, deliveryAddress, updateDeliveryAddress, allBuyerList, allBuyerById, updateBuyer, deleteBuyer };
+module.exports = { socialLogin, createBuyer, buyerLogin, deliveryAddress, updateDeliveryAddress, allBuyerList, allBuyerById, updateBuyer, deleteBuyer, sendEmailOtp, checkBuyer, forgetPasswordOtp, setPassword };
