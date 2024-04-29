@@ -31,12 +31,39 @@ const createBuyer = async (req, res) => {
                                 error: "There was a server side error!",
                             });
                         } else {
-                            res.status(200).json({
-                                result: data,
-                                message: "Sign Up Completed, Please Login!",
-                                status: true,
-                                isSignUp: true
-                            });
+                            const payload = {
+                                id: data._id,
+                                // name: mail.name
+                            };
+                            data.password = ""
+                            jwt.sign(
+                                payload,
+                                keys.key,
+                                {
+                                    expiresIn: 31556926 // 1 year in seconds
+                                },
+
+                                (err, token) => {
+                                    // console.log('data', data)
+                                    data.password = ""
+                                    // console.log('phone123', phone)
+                                    return res.status(200).json({
+                                        message: `Sign Up Completed`,
+                                        result: data,
+                                        token: "Bearer " + token,
+                                        status: true,
+                                        isLogin: true
+                                    });
+                                }
+                            );
+
+
+                            // res.status(200).json({
+                            //     result: data,
+                            //     message: "Sign Up Completed, Please Login!",
+                            //     status: true,
+                            //     isSignUp: true
+                            // });
                         }
                     });
                 });
