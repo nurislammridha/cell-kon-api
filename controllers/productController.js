@@ -68,7 +68,7 @@ const allProducts = async (req, res) => {
 //all Products by filter shop and categories
 const allProductsByShopsAndCategories = async (req, res) => {
   //short low to high 1// high to low -1
-  const { categoriesId, sellersId, isShortBy, short, search = "", page: pageNumber, limit: limitNumber } = req.body || {}
+  const { categoriesId, sellersId = [], brandsId, isShortBy, short, search = "", page: pageNumber, limit: limitNumber } = req.body || {}
   // console.log('req.body', req.body)
   // const filteredProducts= productModel.find({ categories:{$in:categories}  })
   //  isShortBy === true then sort 0, low to high -1, high to low 1
@@ -94,19 +94,39 @@ const allProductsByShopsAndCategories = async (req, res) => {
   try {
     let pro = []
     let count = 0
-    if (categoriesId.length > 0 && sellersId.length > 0) {
-      pro = await Product.find(filter).where("categoryId").in(categoriesId).where("sellerId").in(sellersId).populate('sellerInfo').sort(sortObj).limit(limit).skip((page - 1) * limit)
-      count = await Product.find(filter).where("categoryId").in(categoriesId).where("sellerId").in(sellersId).countDocuments()
-    } else if (categoriesId.length > 0) {
-      pro = await Product.find(filter).where("categoryId").in(categoriesId).populate('sellerInfo').sort(sortObj).limit(limit).skip((page - 1) * limit)
-      count = await Product.find(filter).where("categoryId").in(categoriesId).countDocuments()
-    } else if (sellersId.length > 0) {
-      pro = await Product.find(filter).where("sellerId").in(sellersId).populate('sellerInfo').sort(sortObj).limit(limit).skip((page - 1) * limit)
-      count = await Product.find(filter).where("sellerId").in(sellersId).countDocuments()
-    } else if (categoriesId.length === 0 && sellersId.length === 0) {
-      pro = await Product.find(filter).populate('sellerInfo').sort(sortObj).limit(limit).skip((page - 1) * limit)
-      count = await Product.find(filter).populate('sellerInfo').countDocuments()
+    if (sellersId.length > 0) {
+      // shop wise filter
+      if (categoriesId.length > 0 && brandsId.length > 0) {
+        pro = await Product.find(filter).where("sellerId").in(sellersId).where("categoryId").in(categoriesId).where("brandId").in(brandsId).populate('sellerInfo').sort(sortObj).limit(limit).skip((page - 1) * limit)
+        count = await Product.find(filter).where("sellerId").in(sellersId).where("categoryId").in(categoriesId).where("brandId").in(brandsId).countDocuments()
+      } else if (categoriesId.length > 0) {
+        pro = await Product.find(filter).where("sellerId").in(sellersId).where("categoryId").in(categoriesId).populate('sellerInfo').sort(sortObj).limit(limit).skip((page - 1) * limit)
+        count = await Product.find(filter).where("sellerId").in(sellersId).where("categoryId").in(categoriesId).countDocuments()
+      } else if (brandsId.length > 0) {
+        pro = await Product.find(filter).where("sellerId").in(sellersId).where("brandId").in(brandsId).populate('sellerInfo').sort(sortObj).limit(limit).skip((page - 1) * limit)
+        count = await Product.find(filter).where("brandId").in(brandsId).countDocuments()
+      } else if (categoriesId.length === 0 && brandsId.length === 0) {
+        pro = await Product.find(filter).where("sellerId").in(sellersId).populate('sellerInfo').sort(sortObj).limit(limit).skip((page - 1) * limit)
+        count = await Product.find(filter).where("sellerId").in(sellersId).populate('sellerInfo').countDocuments()
+      }
+
+    } else {
+      //not shop page
+      if (categoriesId.length > 0 && brandsId.length > 0) {
+        pro = await Product.find(filter).where("categoryId").in(categoriesId).where("brandId").in(brandsId).populate('sellerInfo').sort(sortObj).limit(limit).skip((page - 1) * limit)
+        count = await Product.find(filter).where("categoryId").in(categoriesId).where("brandId").in(brandsId).countDocuments()
+      } else if (categoriesId.length > 0) {
+        pro = await Product.find(filter).where("categoryId").in(categoriesId).populate('sellerInfo').sort(sortObj).limit(limit).skip((page - 1) * limit)
+        count = await Product.find(filter).where("categoryId").in(categoriesId).countDocuments()
+      } else if (brandsId.length > 0) {
+        pro = await Product.find(filter).where("brandId").in(brandsId).populate('sellerInfo').sort(sortObj).limit(limit).skip((page - 1) * limit)
+        count = await Product.find(filter).where("brandId").in(brandsId).countDocuments()
+      } else if (categoriesId.length === 0 && brandsId.length === 0) {
+        pro = await Product.find(filter).populate('sellerInfo').sort(sortObj).limit(limit).skip((page - 1) * limit)
+        count = await Product.find(filter).populate('sellerInfo').countDocuments()
+      }
     }
+
     // pro = await Product.find(filter).where("categoryId").in(categoriesId).populate('sellerInfo').sort(sortObj)
     // console.log('pro', pro)
     if (pro) {
@@ -125,7 +145,7 @@ const allProductsByShopsAndCategories = async (req, res) => {
       });
     }
   } catch (error) {
-    // console.log('error', error)
+    console.log('error', error)
     res.status(500).send("Server error");
   }
 };
