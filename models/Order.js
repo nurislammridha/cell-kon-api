@@ -8,6 +8,10 @@ const OrderSchema = new mongoose.Schema({
     type: String,
     require: true,
   },
+  orderId: {
+    type: String,
+    require: true,
+  },
   buyerInfo: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Buyer"

@@ -1,12 +1,25 @@
 const express = require("express");
 const router = express.Router();
 const Order = require("../models/Order");
+const { conTwoDigitString } = require("../utils/service/globalFunction");
 //@route POST api/admin
 //@desc Admin login
+
 const createOrder = async (req, res) => {
   // const {} = req.body;
   try {
-    let ordar = new Order(req.body);
+    const date = new Date()
+    let orderId = "SK"
+    orderId += date.getFullYear().toString().substring(2, 4)
+    orderId += conTwoDigitString(date.getMonth() + 1)
+    orderId += conTwoDigitString(date.getDate())
+    orderId += conTwoDigitString(date.getHours())
+    orderId += conTwoDigitString(date.getMinutes())
+    orderId += conTwoDigitString(date.getSeconds())
+    orderId += conTwoDigitString(date.getMilliseconds()).substring(1, 3)
+    // console.log('orderId', orderId)
+    const payload = { ...req.body, orderId }
+    let ordar = new Order(payload);
     await ordar.save();
     res.status(200).json({
       message: "Order Created Successfully",
