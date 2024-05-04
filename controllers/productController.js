@@ -3,6 +3,7 @@ const router = express.Router();
 const Product = require("../models/Product");
 const Seller = require("../models/Seller");
 const Category = require("../models/Category");
+const SubCategory = require("../models/SubCategory");
 //@route POST api/admin
 //@desc Admin login
 //@access Public
@@ -68,23 +69,43 @@ const allProducts = async (req, res) => {
 //all Products by filter shop and categories
 const allProductsByShopsAndCategories = async (req, res) => {
   //short low to high 1// high to low -1
-  const { categoriesId, sellersId = [], brandsId, isShortBy, short, search = "", page: pageNumber, limit: limitNumber } = req.body || {}
+  const { categoriesId, subCategoryId = "", sellersId = [], brandsId, isShortBy, short, search = "", page: pageNumber, limit: limitNumber } = req.body || {}
   // console.log('req.body', req.body)
   // const filteredProducts= productModel.find({ categories:{$in:categories}  })
   //  isShortBy === true then sort 0, low to high -1, high to low 1
   const page = Number(pageNumber) || 1
   const limit = Number(limitNumber) || 5
   const searchRegExp = new RegExp('.*' + search + '.*', 'i')
-  const filter = {
-    $or: [
-      { productName: { $regex: searchRegExp } },
-      { categoryName: { $regex: searchRegExp } },
-      { brandName: { $regex: searchRegExp } },
-      { sellerName: { $regex: searchRegExp } },
-      // { categoryId: { $in: categoriesId } },
-      // { sellerId: { $in: sellersId } }
-    ]
+  let filter = {}
+  if (subCategoryId.length > 0) {
+    filter = {
+      $and: [
+        { subCategoryId },
+        {
+          $or: [
+            { productName: { $regex: searchRegExp } },
+            { categoryName: { $regex: searchRegExp } },
+            { brandName: { $regex: searchRegExp } },
+            { sellerName: { $regex: searchRegExp } },
+            // { categoryId: { $in: categoriesId } },
+            // { sellerId: { $in: sellersId } }
+          ]
+        }
+      ]
+    }
+  } else {
+    filter = {
+      $or: [
+        { productName: { $regex: searchRegExp } },
+        { categoryName: { $regex: searchRegExp } },
+        { brandName: { $regex: searchRegExp } },
+        { sellerName: { $regex: searchRegExp } },
+        // { categoryId: { $in: categoriesId } },
+        // { sellerId: { $in: sellersId } }
+      ]
+    }
   }
+
   let sortObj = {}
   if (isShortBy) {
     sortObj = { mrp: short }
@@ -167,6 +188,7 @@ const homepageProducts = async (req, res) => {
     let popularProducts = await Product.find().sort({ viewCount: -1 }).limit(15);
     let shopsList = await Seller.find();
     let categoriesList = await Category.find();
+    let subCategoriesList = await SubCategory.find();
     await Product.find((err, data) => {
       if (err) {
         res.status(500).json({
@@ -174,7 +196,7 @@ const homepageProducts = async (req, res) => {
         });
       } else {
         res.status(200).json({
-          result: { data, sellKonMallProducts, trendingProducts, popularProducts, shopsList, categoriesList },
+          result: { data, sellKonMallProducts, trendingProducts, popularProducts, shopsList, categoriesList, subCategoriesList },
           message: "All products list are showing!",
           status: true,
         });
