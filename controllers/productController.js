@@ -4,6 +4,7 @@ const Product = require("../models/Product");
 const Seller = require("../models/Seller");
 const Category = require("../models/Category");
 const SubCategory = require("../models/SubCategory");
+const Campaign = require("../models/Campaign");
 //@route POST api/admin
 //@desc Admin login
 //@access Public
@@ -57,6 +58,7 @@ const allProducts = async (req, res) => {
           currentPage: page,
           previousPage: page - 1 > 0 ? page - 1 : null,
           nextPage: page + 1 <= Math.ceil(count / limit) ? page + 1 : null,
+          count: count
         }
       },
       message: "All products list are showing!",
@@ -69,7 +71,7 @@ const allProducts = async (req, res) => {
 //all Products by filter shop and categories
 const allProductsByShopsAndCategories = async (req, res) => {
   //short low to high 1// high to low -1
-  const { categoriesId, subCategoryId = "", sellersId = [], brandsId, isShortBy, short, search = "", page: pageNumber, limit: limitNumber } = req.body || {}
+  const { campaignId = "", categoriesId, subCategoryId = "", sellersId = [], brandsId, isShortBy, short, search = "", page: pageNumber, limit: limitNumber } = req.body || {}
   // console.log('req.body', req.body)
   // const filteredProducts= productModel.find({ categories:{$in:categories}  })
   //  isShortBy === true then sort 0, low to high -1, high to low 1
@@ -77,10 +79,11 @@ const allProductsByShopsAndCategories = async (req, res) => {
   const limit = Number(limitNumber) || 5
   const searchRegExp = new RegExp('.*' + search + '.*', 'i')
   let filter = {}
-  if (subCategoryId.length > 0) {
+  if (campaignId.length > 0) {
+    console.log('campaignId', campaignId)
     filter = {
       $and: [
-        { subCategoryId },
+        { campaignId },
         {
           $or: [
             { productName: { $regex: searchRegExp } },
@@ -94,15 +97,33 @@ const allProductsByShopsAndCategories = async (req, res) => {
       ]
     }
   } else {
-    filter = {
-      $or: [
-        { productName: { $regex: searchRegExp } },
-        { categoryName: { $regex: searchRegExp } },
-        { brandName: { $regex: searchRegExp } },
-        { sellerName: { $regex: searchRegExp } },
-        // { categoryId: { $in: categoriesId } },
-        // { sellerId: { $in: sellersId } }
-      ]
+    if (subCategoryId.length > 0) {
+      filter = {
+        $and: [
+          { subCategoryId },
+          {
+            $or: [
+              { productName: { $regex: searchRegExp } },
+              { categoryName: { $regex: searchRegExp } },
+              { brandName: { $regex: searchRegExp } },
+              { sellerName: { $regex: searchRegExp } },
+              // { categoryId: { $in: categoriesId } },
+              // { sellerId: { $in: sellersId } }
+            ]
+          }
+        ]
+      }
+    } else {
+      filter = {
+        $or: [
+          { productName: { $regex: searchRegExp } },
+          { categoryName: { $regex: searchRegExp } },
+          { brandName: { $regex: searchRegExp } },
+          { sellerName: { $regex: searchRegExp } },
+          // { categoryId: { $in: categoriesId } },
+          // { sellerId: { $in: sellersId } }
+        ]
+      }
     }
   }
 
@@ -159,6 +180,7 @@ const allProductsByShopsAndCategories = async (req, res) => {
             currentPage: page,
             previousPage: page - 1 > 0 ? page - 1 : null,
             nextPage: page + 1 <= Math.ceil(count / limit) ? page + 1 : null,
+            count: count
           }
         },
         message: "All products filter list are showing!",
@@ -179,8 +201,27 @@ const allProductsByShopsAndCategories = async (req, res) => {
 //     { age: { $exists: false } }
 //   ]
 // })
+// .populate({
+//   path: 'campaignProducts',
+//   populate: {
+//     path: 'product',
+//     model: 'Product',
+//   }
+// })
 //most recent
 //const mostRecentRecord = await db.collection.findOne().sort({ _id: -1 });
+const camProduct = async (list) => {
+  let data = []
+  await list.forEach(e => {
+    // console.log('e._id', e._id)
+    data = Product.find({ campaignId: e._id }).limit(20)
+    // console.log('products', products)
+    // let obj = { ...e._doc, products }
+    // data.push(products)
+    console.log('data', data._doc)
+  });
+  return data
+}
 const homepageProducts = async (req, res) => {
   try {
     let sellKonMallProducts = await Product.find({ sellerId: "6602d7dfdf403e1264fffccc" });
@@ -189,6 +230,9 @@ const homepageProducts = async (req, res) => {
     let shopsList = await Seller.find();
     let categoriesList = await Category.find();
     let subCategoriesList = await SubCategory.find();
+    // let cam = await Campaign.find({ isShowHomePage: true });
+    let campaign = await Product.find({ campaignId: "663ce90f78e1a91648fd6eb3" }).populate('campaign').limit(20);
+    // let campaign = camProduct(cam)
     await Product.find((err, data) => {
       if (err) {
         res.status(500).json({
@@ -196,7 +240,7 @@ const homepageProducts = async (req, res) => {
         });
       } else {
         res.status(200).json({
-          result: { data, sellKonMallProducts, trendingProducts, popularProducts, shopsList, categoriesList, subCategoriesList },
+          result: { data, sellKonMallProducts, trendingProducts, popularProducts, shopsList, categoriesList, subCategoriesList, campaign: campaign },
           message: "All products list are showing!",
           status: true,
         });

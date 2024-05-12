@@ -40,6 +40,22 @@ const CartSchema = new mongoose.Schema({
       type: String,
       require: false,
     },
+    campaignId: {
+      type: String,
+      require: false,
+    },
+    campaignEndTime: {
+      type: String,
+      require: false,
+    },
+    campaignEndDate: {
+      type: String,
+      require: false,
+    },
+    campaignPrice: {
+      type: Number,
+      require: false,
+    },
   }],
   isActive: {
     type: String,

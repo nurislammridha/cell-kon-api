@@ -12,13 +12,25 @@ const ProductSchema = new mongoose.Schema({
     type: Number,
     require: true,
   },
-  regularDiscount: {
+  regularDiscount: {//regular price
     type: Number,
     require: true,
   },
-  campaignDiscount: {
+  campaignDiscount: { //discount price
     type: Number,
-    require: true,
+    require: false,
+    default: 0
+  },
+  campaign: {
+    type: mongoose.Schema.Types.ObjectId,
+    require: false,
+    default: "",
+    ref: 'Campaign'
+  },
+  campaignId: {
+    type: String,
+    require: false,
+    default: ""
   },
   unitName: {
     type: String,

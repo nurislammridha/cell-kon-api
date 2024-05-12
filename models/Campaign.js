@@ -20,26 +20,42 @@ const CampaignSchema = new mongoose.Schema({
     type: String,
     require: true,
   },
+  isShowHomePage: {
+    type: Boolean,
+    require: false,
+    default: false
+  },
   campaignProducts: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "products"
+    product: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Product"
+    },
+    productId: {
+      type: String,
+      require: true
+    },
+    campaignPrice: {
+      type: Number,
+      require: true
+    }
   }],
   soldProducts: [{
     productsId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "products"
+      require: false,
+      ref: "Product"
     },
     quantity: {
       type: Number,
-      require: true,
+      require: false,
     },
     sellPrice: {
       type: String,
-      require: true,
+      require: false,
     },
     sellingTimeRp: {
       type: String,
-      require: true,
+      require: false,
     },
   }
   ],
@@ -47,5 +63,5 @@ const CampaignSchema = new mongoose.Schema({
     type: String,
     default: true,
   },
-});
+}, { timestamps: true });
 module.exports = Campaign = mongoose.model("Campaign", CampaignSchema);
