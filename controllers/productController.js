@@ -231,7 +231,7 @@ const homepageProducts = async (req, res) => {
     let categoriesList = await Category.find();
     let subCategoriesList = await SubCategory.find();
     // let cam = await Campaign.find({ isShowHomePage: true });
-    let campaign = await Product.find({ campaignId: "663ce90f78e1a91648fd6eb3" }).populate('campaign').limit(20);
+    let campaign = await Product.find({ campaignId: "663ce90f78e1a91648fd6eb3", isCampaign: true }).populate('campaign').limit(20);
     // let campaign = camProduct(cam)
     await Product.find((err, data) => {
       if (err) {

@@ -141,9 +141,12 @@ const updateCampaign = async (req, res) => {
   );
 };
 
+
 //delete campaign
 const deleteCampaign = async (req, res) => {
-  await Campaign.deleteOne({ _id: req.params.id }, (err) => {
+  campId = req.params.id
+  await Product.updateMany({ campaignId: campId }, { $set: { campaignDiscount: 0, campaignId: "", isCampaign: false } })
+  await Campaign.deleteOne({ _id: campId }, (err) => {
     if (err) {
       res.status(500).json({
         error: "There was a server side error!",
