@@ -1,14 +1,37 @@
 const express = require("express");
 const router = express.Router();
 const Order = require("../models/Order");
+const Product = require("../models/Product");
 const { conTwoDigitString } = require("../utils/service/globalFunction");
 //@route POST api/admin
 //@desc Admin login
+//Update and reduce availableProduct 
+const availableQuantityReduce = (arr) => {
+  arr.forEach(({ productId, quantity }) => {
+    Product.findById({ _id: productId }, (err, data) => {
+      if (err) {
+        console.log('err', err)
+        res.status(500).send("Server error");
+      } else {
+        const { availableQuantity } = data
+        const post = { availableQuantity: parseInt(availableQuantity) - parseInt(quantity) }
+        console.log('post', post)
+        Product.updateOne({ _id: productId }, {
+          $set: post
+        }, (err, data) => {
+          // console.log('err', err)
+          // console.log('data', data)
+        })
+      }
+    })
 
+  });
+}
 const createOrder = async (req, res) => {
-  // const {} = req.body;
+  const { productInfo } = req.body;
   try {
     const date = new Date()
+    //Make Order ID
     let orderId = "SK"
     orderId += date.getFullYear().toString().substring(2, 4)
     orderId += conTwoDigitString(date.getMonth() + 1)
@@ -21,6 +44,7 @@ const createOrder = async (req, res) => {
     const payload = { ...req.body, orderId }
     let ordar = new Order(payload);
     await ordar.save();
+    availableQuantityReduce(productInfo)
     res.status(200).json({
       message: "Order Created Successfully",
       status: true,

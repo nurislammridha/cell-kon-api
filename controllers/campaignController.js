@@ -29,7 +29,6 @@ const multipleUpdate = (arr, camId) => {
       }
     })
   });
-
 }
 const addCampaignProducts = async (req, res) => {
   // productId: item._id, campaignPrice: 0

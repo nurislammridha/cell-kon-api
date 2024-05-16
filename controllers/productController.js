@@ -224,11 +224,11 @@ const camProduct = async (list) => {
 }
 const homepageProducts = async (req, res) => {
   try {
-    let sellKonMallProducts = await Product.find({ sellerId: "6602d7dfdf403e1264fffccc" });
-    let trendingProducts = await Product.find({ isTrending: true });
+    let sellKonMallProducts = await Product.find({ sellerId: "6602d7dfdf403e1264fffccc" }).sort({ _id: -1 });
+    let trendingProducts = await Product.find({ isTrending: true }).sort({ _id: -1 });
     let popularProducts = await Product.find().sort({ viewCount: -1 }).limit(15);
-    let shopsList = await Seller.find();
-    let categoriesList = await Category.find();
+    let shopsList = await Seller.find().sort({ _id: -1 });
+    let categoriesList = await Category.find().sort({ _id: -1 });
     let subCategoriesList = await SubCategory.find();
     // let cam = await Campaign.find({ isShowHomePage: true });
     let campaign = await Product.find({ campaignId: "663ce90f78e1a91648fd6eb3", isCampaign: true }).populate('campaign').limit(20);
@@ -267,13 +267,20 @@ const homepageProducts = async (req, res) => {
 
 // Product By ID//
 const productById = async (req, res) => {
-  await Product.find({ _id: req.params.id }, (err, data) => {
+  const productId = req.params.id
+  await Product.find({ _id: productId }, (err, data) => {
     if (err) {
       res.status(500).json({
         error: "There was a server side error!",
       });
     } else {
       let [obj] = data;
+      let count = obj?.viewCount
+      // console.log('count', count)
+      Product.updateOne({ _id: productId }, { $set: { viewCount: ++count } }, (err, data) => {
+        // console.log('err', err)
+        // console.log('data', data)
+      })
       res.status(200).json({
         result: obj,
         message: "Product By Id!",

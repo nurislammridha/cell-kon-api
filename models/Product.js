@@ -24,7 +24,7 @@ const ProductSchema = new mongoose.Schema({
   campaign: {
     type: mongoose.Schema.Types.ObjectId,
     require: false,
-    default: "",
+    default: "660000006a969b0034e80e6c",
     ref: 'Campaign'
   },
   campaignId: {
