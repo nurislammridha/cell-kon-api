@@ -232,6 +232,7 @@ const homepageProducts = async (req, res) => {
     let subCategoriesList = await SubCategory.find();
     // let cam = await Campaign.find({ isShowHomePage: true });
     let campaign = await Product.find({ campaignId: "6642d16d4f1f26396015ff5b", isCampaign: true }).populate('campaign').limit(20);
+    let eidCampaign = await Product.find({ campaignId: "66706ae51363cf04677a4e06", isCampaign: true }).populate('campaign').limit(20);
     // let campaign = camProduct(cam)
     await Product.find((err, data) => {
       if (err) {
@@ -240,7 +241,7 @@ const homepageProducts = async (req, res) => {
         });
       } else {
         res.status(200).json({
-          result: { data, sellKonMallProducts, trendingProducts, popularProducts, shopsList, categoriesList, subCategoriesList, campaign: campaign },
+          result: { data, sellKonMallProducts, trendingProducts, popularProducts, shopsList, categoriesList, subCategoriesList, campaign: campaign, eidCampaign },
           message: "All products list are showing!",
           status: true,
         });
