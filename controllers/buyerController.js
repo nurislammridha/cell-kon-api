@@ -259,6 +259,33 @@ const checkBuyer = async (req, res) => {
         console.log('error', err)
     }
 }
+//check buyer through phone
+const checkBuyerPhone = async (req, res) => {
+    const { phone } = req.body
+    try {
+        // Check if user is already present
+        const checkUserPresent = await Buyer.findOne({ buyerPhone: phone });
+        // If user found with provided email
+        if (checkUserPresent) {
+            return res.status(200).json({
+                message: ``,
+                result: checkUserPresent,
+                status: true,
+                isPresent: true
+            });
+        } else {
+            return res.status(200).json({
+                message: `${phone} is n't found, Please sign up`,
+                result: checkUserPresent,
+                status: true,
+                isPresent: false
+            });
+        }
+
+    } catch (err) {
+        console.log('error', err)
+    }
+}
 //buyer login
 const buyerLogin = async (req, res) => {
     const { buyerPhone, buyerEmail, password } = req.body;
@@ -458,6 +485,29 @@ const deliveryAddress = async (req, res) => {
         res.status(500).send("Server error");
     }
 };
+//create user without login only phone number
+const createUser = async (req, res) => {
+    const { addressInfo } = req.body;
+    const { buyerName, buyerPhone } = addressInfo || {}
+    try {
+        let buyerInfo = new Buyer({ buyerName, buyerPhone, addressInfo: [addressInfo] });
+        buyerInfo.save((err, data) => {
+            if (err) {
+                res.status(500).json({
+                    error: "There was a server side error!",
+                });
+            }
+            return res.status(200).json({
+                message: `User Created`,
+                result: data,
+                status: true
+            });
+        })
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send("Server error");
+    }
+};
 //get details delivery address
 const updateDeliveryAddress = async (req, res) => {
     const { buyerId, addressId, addressInfo } = req.body;
@@ -575,4 +625,4 @@ const deleteBuyer = async (req, res) => {
         }
     });
 };
-module.exports = { socialLogin, createBuyer, buyerLogin, deliveryAddress, updateDeliveryAddress, allBuyerList, allBuyerById, updateBuyer, deleteBuyer, sendEmailOtp, checkBuyer, forgetPasswordOtp, setPassword };
+module.exports = { socialLogin, createBuyer, buyerLogin, deliveryAddress, updateDeliveryAddress, allBuyerList, allBuyerById, updateBuyer, deleteBuyer, sendEmailOtp, checkBuyer, forgetPasswordOtp, setPassword, checkBuyerPhone, createUser };

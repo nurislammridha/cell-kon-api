@@ -6,7 +6,7 @@ const { createOrder, allOrders, orderByStatus, orderByBuyer, orderDetails, updat
 //@route POST api/admin
 //@desc Admin login
 //@access Public
-router.route('/').post(buyerAuth, createOrder)
+router.route('/').post(createOrder)
 router.route('/').get(adminAuth, allOrders)
 router.route('/order-status').get(adminAuth, orderByStatus)
 router.route('/buyer/:id').get(buyerAuth, orderByBuyer)
