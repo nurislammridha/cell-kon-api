@@ -17,7 +17,7 @@ const createBuyer = async (req, res) => {
         let isMail = false
         let otpObj = await OtpEmail.findOne({ email: buyerEmail }) || {}
         if (otp === otpObj?.otp) {
-            let buyerInfo = new Buyer({ buyerName, buyerEmail, buyerPhone, password });
+            let buyerInfo = new Buyer({ buyerName, buyerEmail, buyerPhone, password, isPassword: true });
 
             // Hash password before saving in database
             bcrypt.genSalt(10, (err, salt) => {
@@ -264,7 +264,8 @@ const checkBuyerPhone = async (req, res) => {
     const { phone } = req.body
     try {
         // Check if user is already present
-        const checkUserPresent = await Buyer.findOne({ buyerPhone: phone });
+        const checkUserPresent = await Buyer.findOne({ buyerPhone: phone })
+        // console.log('checkUserPresent', checkUserPresent.password)
         // If user found with provided email
         if (checkUserPresent) {
             return res.status(200).json({
@@ -288,46 +289,98 @@ const checkBuyerPhone = async (req, res) => {
 }
 //buyer login
 const buyerLogin = async (req, res) => {
-    const { buyerPhone, buyerEmail, password } = req.body;
+    const { buyerPhone, buyerEmail, password, createPassword } = req.body;
     try {
         let phone = null
         let mail = null
         if (buyerPhone.length > 0) {
             phone = await Buyer.findOne({ buyerPhone })
+            console.log('phone', phone)
             if (phone) {
-                bcrypt.compare(password, phone.password).then(isMatch => {
-                    if (isMatch) {
-                        const payload = {
-                            id: phone._id,
-                            // name: phone.name
-                        };
-                        jwt.sign(
-                            payload,
-                            keys.key,
-                            {
-                                expiresIn: 31556926 // 1 year in seconds
-                            },
-                            (err, token) => {
-                                phone.password = ""
-                                console.log('phone123', phone)
-                                return res.status(200).json({
-                                    message: `You are logged in`,
-                                    result: phone,
-                                    token: "Bearer " + token,
-                                    status: true,
-                                    isLogin: true
-                                });
-                            }
-                        );
-                    } else {
-                        return res.status(200).json({
-                            message: `Incorrect password`,
-                            result: "",
-                            status: true,
-                            isLogin: false
-                        });
-                    }
-                });
+                if (createPassword) {
+                    // Hash password before saving in database
+                    bcrypt.genSalt(10, (err, salt) => {
+                        bcrypt.hash(password, salt, (err, hash) => {
+                            if (err) throw err;
+                            // let = hash;
+                            Buyer.updateOne(
+                                { buyerPhone },
+                                {
+                                    $set: { password: hash, isPassword: true },
+                                },
+                                (err) => {
+                                    if (err) {
+                                        res.status(500).json({
+                                            error: "There was a server side error!",
+                                        });
+                                    } else {
+                                        //update password and login
+                                        const payload = {
+                                            id: phone._id,
+                                            // name: phone.name
+                                        };
+                                        jwt.sign(
+                                            payload,
+                                            keys.key,
+                                            {
+                                                expiresIn: 31556926 // 1 year in seconds
+                                            },
+                                            (err, token) => {
+                                                phone.password = ""
+                                                // console.log('phone123', phone)
+                                                return res.status(200).json({
+                                                    message: `You are logged in`,
+                                                    result: phone,
+                                                    token: "Bearer " + token,
+                                                    status: true,
+                                                    isLogin: true
+                                                });
+                                            }
+                                        );
+                                    }
+                                }
+                            )
+
+                        })
+                    })
+                }
+                else {
+                    bcrypt.compare(password, phone.password).then(isMatch => {
+                        if (isMatch) {
+                            const payload = {
+                                id: phone._id,
+                                // name: phone.name
+                            };
+                            jwt.sign(
+                                payload,
+                                keys.key,
+                                {
+                                    expiresIn: 31556926 // 1 year in seconds
+                                },
+                                (err, token) => {
+                                    phone.password = ""
+                                    console.log('phone123', phone)
+                                    return res.status(200).json({
+                                        message: `You are logged in`,
+                                        result: phone,
+                                        token: "Bearer " + token,
+                                        status: true,
+                                        isLogin: true
+                                    });
+                                }
+                            );
+                        } else {
+                            return res.status(200).json({
+                                message: `Incorrect password`,
+                                result: "",
+                                status: true,
+                                isLogin: false
+                            });
+                        }
+                    });
+                }
+
+
             } else {
                 return res.status(200).json({
                     message: `Your phone number is n't found in system`,
@@ -394,7 +447,7 @@ const socialLogin = async (req, res) => {
     try {
         if (isNewUser) {
             //sign up
-            let buyerInfo = new Buyer({ buyerName, buyerEmail, buyerPhone, googleId, buyerImgUrl, providerId, password: "sellKonSocial" });
+            let buyerInfo = new Buyer({ buyerName, buyerEmail, buyerPhone, googleId, buyerImgUrl, providerId, password: "sellKonSocial", isPassword: true });
             buyerInfo.save((err, data) => {
                 if (err) {
                     res.status(500).json({

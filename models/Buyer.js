@@ -90,6 +90,11 @@ const BuyerSchema = new mongoose.Schema({
     type: String,
     require: false,
   },
+  isPassword: {
+    type: Boolean,
+    require: false,
+    default: false
+  },
   googleId: {
     type: String,
     default: ""
