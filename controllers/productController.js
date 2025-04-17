@@ -223,6 +223,8 @@ const camProduct = async (list) => {
   return data
 }
 const homepageProducts = async (req, res) => {
+  let bearerToken = req.headers.authorization
+  console.log('bearerToken', bearerToken)
   try {
     let sellKonMallProducts = await Product.find({ sellerId: "6602d7dfdf403e1264fffccc" }).sort({ _id: -1 });
     let trendingProducts = await Product.find({ isTrending: true }).sort({ _id: -1 });
